@@ -18,6 +18,9 @@ head(abs)
 
 #sandhill only
 abs<- abs_markrecapture_all_sandhill
+#ruderal only
+abs<- abs_markrecapture_allruderalr
+
 
 #shouldn't be necessary unless having issues with csv or excel formatting deleteing 0s
 #abs_markrecapture_prop2$ch <- as.numeric(abs_markrecapture_prop2$ch)
@@ -86,53 +89,67 @@ abs.js.models
 #4 Phi(~time)p(~1)pent(~time)N(~1)   12 121.8578  6.762051 3.288522e-02  97.85783           0
 #1       Phi(~1)p(~1)pent(~1)N(~1)    4 131.6125 16.516669 2.505027e-04 123.61245           0
 #3    Phi(~time)p(~1)pent(~1)N(~1)    8 138.2621 23.166314 9.012814e-06 122.26210           0
-#The model table (abs.js.models) suggests the most supported model has constant survival, constant detection probability, and constant probability of entry (~1 = intercept only model). Although we can model-average the results, for simplicity we will just continue with the most-supported model.
+#The model table (abs.js.models) suggests the most supported model has constant survival, constant detection probability, and time dependent recapture probability
+#/probability of entry (~1 = intercept only model). Although we can model-average the results, for simplicity we will just continue with the most-supported model.
 
 #Let’s look at the model output of the most supported model, and then estimate real parameters (remember the coefficients are on different scales depending on the link function).
 
 #We can use the predict function to estimate the real parameters, or calculate them ‘by hand’ using the link functions for each parameter.
 
 # Look at estimates of top model (row number on left of model table, or using name)
-abs.js.models[[1]]  # or dipper.js.models[["Phi.dot.p.dot.pent.dot.N.dot"]] or dipper.js.models$Phi.dot.p.dot.pent.dot.N.dot
+#abs.js.models[[1]]  # or dipper.js.models[["Phi.dot.p.dot.pent.dot.N.dot"]] or dipper.js.models$Phi.dot.p.dot.pent.dot.N.dot
+abs.js.predicted <- predict(abs.js.models[[2]]) # top model for all, sandhill, ruderal includes pent as time dependent
+
+
 ## 
 ## crm Model Summary
 ## 
-## Npar :  4
-##-2lnL:  123.6125
-#AIC  :  131.6125
+## Npar :  8
+#-2lnL:  105.2759
+#AIC  :  121.2759
 
 #Beta
-#Estimate         se         lcl        ucl
-#Phi.(Intercept)   2.879492  0.4212470    2.053848   3.705136
-#p.(Intercept)     2.512869  0.4532401    1.624519   3.401220
-#pent.(Intercept) -2.611729  0.6259037   -3.838500  -1.384958
-#N.(Intercept)    -7.877185 60.2988714 -126.062973 110.308603
-abs.js.predicted <- predict(abs.js.models[[1]]) # [[1]] just calls the model row according to the model table.
+                    Estimate         se         lcl          ucl
+#Phi.(Intercept)    2.7875509  0.4059921    1.991806   3.58329541
+#p.(Intercept)      2.9825405  0.4460128    2.108355   3.85672563
+#pent.(Intercept)  -0.6200055  0.4190629   -1.441369   0.20135775
+#pent.time3       -10.1948873 51.4208729 -110.979798  90.59002366
+#pent.time4       -10.4019718 58.3118526 -124.693203 103.88925936
+#pent.time5        -1.2191659  0.6652110   -2.522979   0.08464767
+#pent.time6       -11.0720794 79.6476565 -167.181486 145.03732728
+#N.(Intercept)     -9.4603201 86.6349869 -179.264894 160.34425420
+
+#abs.js.predicted <- predict(abs.js.models[[1]]) # [[1]] just calls the model row according to the model table.
+abs.js.predicted <- predict(abs.js.models[[2]]) # top model for all, sandhill, ruderal includes pent as time dependent
 
 abs.js.predicted
 # Look at predictions of real parameters abs.js.predicted 
 ## $Phi
-##   occ  estimate         se       lcl       ucl
-##1   1 0.9468233 0.02120934 0.8863359 0.9759936
+#  occ  estimate         se       lcl       ucl
+#1   1 0.9310295 0.03327355 0.8301934 0.9738708
 
 #$p
-#occ  estimate         se       lcl       ucl
-#1   1 0.9250391 0.03142846 0.8354174 0.9677426
+#  occ  estimate           se          lcl ucl
+#1   1 0.9419994 0.022182 0.8799341 0.9729671
+
+#$p
+#  occ  estimate         se       lcl       ucl
+#1   1 0.9517791 0.02047004 0.8917126 0.9793004
 
 #$pent
-#time occ   estimate         se        lcl       ucl
-#1    2   2 0.05369824 0.02458595 0.02150989 0.1277651
-#2    3   3 0.05369824 0.02458595 0.02150989 0.1277651
-#3    4   4 0.05369824 0.02458595 0.02150989 0.1277651
-#4    5   5 0.05369824 0.02458595 0.02150989 0.1277651
-#5    6   6 0.05369824 0.02458595 0.02150989 0.1277651
+#  time occ     estimate           se          lcl       ucl
+#1    2   2 3.170076e-01 0.0882397981 1.727371e-01 0.5078085
+#2    3   3 1.184367e-05 0.0006089959 2.012804e-49 1.0000000
+#3    4   4 9.628326e-06 0.0005614338 2.228748e-55 1.0000000
+#4    5   5 9.366832e-02 0.0515168203 3.050047e-02 0.2534582
+#5    6   6 4.926366e-06 0.0003923692 7.861142e-74 1.0000000
 
 #$N
-#estimate         se          lcl          ucl
-#1 0.0003792994 0.02287132 1.784623e-55 8.061533e+47
+#      estimate          se          lcl          ucl
+#1 7.788166e-05 0.006747276 1.400379e-78 4.331365e+69
 
-#The output shows that survival between capture events is 0.94, detection probability is 0.92, pent is 0.05 each capture event
-#So what about population size?
+#The output shows that survival between capture events is 0.93, detection probability is 0.94, pent is differnt between each capture event
+#So what about population size? #this isn't relavant to this paper
 #There is no direct estimate of population size in the model. The esitmate of “N” in the model output is for the number of unmarked individuals in the superpopulation.
 
 #To estimate population size, we can derive it using the model estimates.
